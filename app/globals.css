@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  /* Misma paleta que frontend/app/globals.css — mantener sincronizadas */
+  --bg-950: #020617;
+  --bg-900: #0f172a;
+  --bg-800: #1e293b;
+  --bg-700: #334155;
+  --bg-600: #475569;
+
+  --text-100: #f8fafc;
+  --text-400: #94a3b8;
+  --text-600: #64748b;
+
+  --danger: #ef4444;
+  --series-1: #3987e5;
+}
+
+@theme inline {
+  --color-bg-950: var(--bg-950);
+  --color-bg-900: var(--bg-900);
+  --color-bg-800: var(--bg-800);
+  --color-bg-700: var(--bg-700);
+  --color-bg-600: var(--bg-600);
+
+  --color-text-100: var(--text-100);
+  --color-text-400: var(--text-400);
+  --color-text-600: var(--text-600);
+
+  --color-danger: var(--danger);
+  --color-series-1: var(--series-1);
+}
+
+body {
+  background: var(--bg-950);
+  color: var(--text-100);
+}
