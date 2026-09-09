@@ -9,7 +9,7 @@ import type { AuthSyncMessage, ChatMensaje } from "@/lib/types";
  * ⚠️ EDITAR AQUÍ: orígenes del portal permitidos para recibir postMessage.
  * Debe matchear PARENT_ORIGINS de next.config.ts.
  */
-const ALLOWED_PARENT_ORIGINS = ["http://localhost:3000", "http://localhost:3001"];
+const ALLOWED_PARENT_ORIGINS = ["http://localhost:3000", "http://localhost:3001", "https://operativai-panel-usuario.vws2rl.easypanel.host"];
 
 const N8N_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ?? "";
 const TENANT_ID = process.env.TENANT_ID ?? "";
