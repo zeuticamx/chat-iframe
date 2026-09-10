@@ -12,7 +12,7 @@ import type { AuthSyncMessage, ChatMensaje } from "@/lib/types";
 const ALLOWED_PARENT_ORIGINS = ["http://localhost:3000", "http://localhost:3001", "https://operativai-panel-usuario.vws2rl.easypanel.host"];
 
 const N8N_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ?? "";
-const WIDGET_KEY = process.env.NEXT_PUBLIC_TENANT_ID ?? "";
+const WIDGET_KEY = process.env.NEXT_PUBLIC_WIDGET_KEY ?? "";
 const SESSION_STORAGE_KEY = "mi_widget_session_id";
 
 function getSessionId(): string {
@@ -62,7 +62,7 @@ export default function EmbedPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           object: "web_widget",
-          widget_key: WIDGET_KEY,
+          widget_key: WIDGET_KEY,          
           session_id: getSessionId(),
           nombre: auth?.email ?? "Visitante web",
           contenido: texto_limpio,
