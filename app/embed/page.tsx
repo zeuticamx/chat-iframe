@@ -71,12 +71,36 @@ export default function EmbedPage() {
       });
 
       // ⚠️ EDITAR AQUÍ: forma de la respuesta que devuelve ese workflow.
-      const data = await respuesta.json();
-      const texto_respuesta: string = data?.respuesta ?? data?.reply ?? "";
-
-      if (texto_respuesta) {
-        setMensajes((prev) => [...prev, { id: crypto.randomUUID(), rol: "agente", texto: texto_respuesta }]);
+      // n8n con "Respond With: JSON" sobre un body ya pasado por JSON.stringify()
+      // devuelve el objeto doble-encodeado, así que puede hacer falta parsear dos veces.
+      const crudo = await respuesta.text();
+      let data: unknown = crudo;
+      while (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          break;
+        }
       }
+
+      const cuerpo = data as { respuesta?: unknown; reply?: unknown } | null;
+      const texto_respuesta =
+        typeof cuerpo?.respuesta === "string"
+          ? cuerpo.respuesta
+          : typeof cuerpo?.reply === "string"
+            ? cuerpo.reply
+            : "";
+
+      setMensajes((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          rol: "agente",
+          texto:
+            texto_respuesta ||
+            `[sin campo "respuesta" — HTTP ${respuesta.status}] ${crudo.slice(0, 300)}`,
+        },
+      ]);
     } catch {
       setMensajes((prev) => [
         ...prev,
