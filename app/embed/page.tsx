@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AuthSyncMessage, ChatMensaje } from "@/lib/types";
+import { IndicadorEscribiendo } from "./indicador-escribiendo";
 
 /**
  * ⚠️ EDITAR AQUÍ: orígenes del portal permitidos para recibir postMessage.
@@ -14,6 +15,8 @@ const ALLOWED_PARENT_ORIGINS = ["http://localhost:3000", "http://localhost:3001"
 const N8N_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ?? "";
 const WIDGET_KEY = process.env.NEXT_PUBLIC_WIDGET_KEY ?? "";
 const SESSION_STORAGE_KEY = "mi_widget_session_id";
+/** Si n8n no contesta en este tiempo se aborta y se muestra el error de conexión. */
+const TIMEOUT_RESPUESTA_MS = 30_000;
 
 function getSessionId(): string {
   let sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
@@ -28,6 +31,7 @@ export default function EmbedPage() {
   const [auth, setAuth] = useState<AuthSyncMessage["usuario"]>(null);
   const [mensajes, setMensajes] = useState<ChatMensaje[]>([]);
   const [texto, setTexto] = useState("");
+  const [esperando, setEsperando] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,21 +48,23 @@ export default function EmbedPage() {
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [mensajes]);
+  }, [mensajes, esperando]);
 
   const handleEnviar = async () => {
     const texto_limpio = texto.trim();
-    if (!texto_limpio) return;
+    if (!texto_limpio || esperando) return;
 
     setMensajes((prev) => [...prev, { id: crypto.randomUUID(), rol: "usuario", texto: texto_limpio }]);
     setTexto("");
 
     if (!N8N_WEBHOOK_URL) return;
 
+    setEsperando(true);
     try {
       // ⚠️ EDITAR AQUÍ: forma del payload que espera el workflow "canal-entrada" en n8n.
       const respuesta = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
+        signal: AbortSignal.timeout(TIMEOUT_RESPUESTA_MS),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           object: "web_widget",
@@ -106,6 +112,10 @@ export default function EmbedPage() {
         ...prev,
         { id: crypto.randomUUID(), rol: "agente", texto: "No se pudo conectar con el agente." },
       ]);
+    } finally {
+      // Mismo tick que el push de la respuesta: React agrupa ambos y el
+      // indicador se reemplaza por la burbuja real sin frame vacío.
+      setEsperando(false);
     }
   };
 
@@ -135,6 +145,7 @@ export default function EmbedPage() {
             {m.texto}
           </div>
         ))}
+        {esperando && <IndicadorEscribiendo />}
       </div>
 
       <div className="flex items-center gap-2 border-t border-bg-700 p-2">
@@ -148,7 +159,7 @@ export default function EmbedPage() {
         <button
           type="button"
           onClick={handleEnviar}
-          disabled={!texto.trim()}
+          disabled={!texto.trim() || esperando}
           className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md bg-bg-800 text-text-100 hover:bg-bg-700 disabled:cursor-not-allowed disabled:opacity-40"
           aria-label="Enviar"
         >
