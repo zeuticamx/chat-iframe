@@ -10,7 +10,11 @@ import { IndicadorEscribiendo } from "./indicador-escribiendo";
  * ⚠️ EDITAR AQUÍ: orígenes del portal permitidos para recibir postMessage.
  * Debe matchear PARENT_ORIGINS de next.config.ts.
  */
-const ALLOWED_PARENT_ORIGINS = ["http://localhost:3000", "http://localhost:3001", "https://agente.operativai.com.mx", "https://www.operativai.com.mx"];
+const ALLOWED_PARENT_ORIGINS = [
+  ...(process.env.NODE_ENV === "production" ? [] : ["http://localhost:3000", "http://localhost:3001"]),
+  "https://agente.operativai.com.mx",
+  "https://www.operativai.com.mx",
+];
 
 const N8N_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ?? "";
 const WIDGET_KEY = process.env.NEXT_PUBLIC_WIDGET_KEY ?? "";
@@ -36,6 +40,8 @@ export default function EmbedPage() {
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
+      if (event.source !== window.parent) return;
+      if (event.source !== window.parent) return;
       if (!ALLOWED_PARENT_ORIGINS.includes(event.origin)) return;
 
       const data = event.data as AuthSyncMessage;
