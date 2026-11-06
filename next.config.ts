@@ -8,12 +8,17 @@ import type { NextConfig } from "next";
 // usuario podría, si no, embeber el chat.
 const PARENT_ORIGINS = [
   ...(process.env.NODE_ENV === "production" ? [] : ["http://localhost:3000", "http://localhost:3001"]),
-  "https://agente.operativai.com.mx",
-  "https://www.operativai.com.mx",
+  "https://agente.orvia.tech",
+  "https://www.orvia.tech",
 ];
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Fija la raíz del proyecto: sin esto Turbopack toma un package-lock.json
+  // suelto de la carpeta del usuario y avisa que lo ignora.
+  turbopack: {
+    root: __dirname,
+  },
   async headers() {
     return [
       {

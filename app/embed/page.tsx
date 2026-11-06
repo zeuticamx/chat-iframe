@@ -12,8 +12,8 @@ import { IndicadorEscribiendo } from "./indicador-escribiendo";
  */
 const ALLOWED_PARENT_ORIGINS = [
   ...(process.env.NODE_ENV === "production" ? [] : ["http://localhost:3000", "http://localhost:3001"]),
-  "https://agente.operativai.com.mx",
-  "https://www.operativai.com.mx",
+  "https://agente.orvia.tech",
+  "https://www.orvia.tech",
 ];
 
 const N8N_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL ?? "";
